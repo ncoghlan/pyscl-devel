@@ -3,7 +3,7 @@ Utilities to assist in sclo-python maintenance
 
 ## sclo-python links
 
-- [dist-git repo](https://github.com/ncoghlan/sclo-python/) (temporary, expected to move to branches in https://github.com/sclorg-distgit/python)
+- [metapackage repo](https://github.com/ncoghlan/sclo-python/) (temporary, expected to move into https://github.com/sclorg-distgit)
 - [Pre-release COPR builds](https://copr.fedorainfracloud.org/coprs/ncoghlan/sclo-python-preview/)
 - TBD: CentOS Build System links
 - TBD: softwarecollections.org links
