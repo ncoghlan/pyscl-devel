@@ -1,0 +1,48 @@
+# RPM List Builder config that downloads from https://github.com/sclorg-distgit
+#
+# Temporary spec overrides:
+#
+#     sclo-python: still under ncoghlan's personal repos rather than sclorg-distgit
+#     python: currently using ncoghlan's python-spec fork of that repo
+
+before_download:
+  - echo "Retrieving RPM specs from sclorg-distgit"
+  - pwd
+download:
+  - |
+    echo "Downloading PKG: ${PKG}"
+    export REPO_NAME=${PKG}
+    if [ "${PKG}" == "sclo-python" || "${PKG}" == "python" ]; then
+        export BASE_REPO_URL="https://github.com/ncoghlan"
+        export REPO_BRANCH="sig-sclo7-sclo-python"
+        if [ "${PKG}" == "python" ]; then
+            export REPO_NAME="python-spec"
+        fi
+    else
+        export BASE_REPO_URL="https://github.com/sclorg-distgit"
+        export REPO_BRANCH="sig-sclo7-rh-python35-rh"
+    fi
+    if [ "${REPO_NAME}" != "" ]; then
+        if [ ! -d ${REPO_NAME} ]; then
+            git clone "${BASE_REPO_URL}/${PKG}.git"
+        fi
+        if [ "${REPO_NAME}" != "${PKG}" ]; then
+            ln -sf ${REPO_NAME} ${PKG}
+        fi
+        pushd ${PKG}
+        git pull
+        git checkout ${REPO_BRANCH}
+        popd
+    fi
+  - pwd
+before_build:
+  - echo "Building for x86-64 EL7 with mock & scl-utils"
+  - pwd
+  # Skip cleaning the chroot for now to speed up local iterations
+  - echo "Skipping `mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --scrub=all`"
+build:
+  - |
+    echo "Building PKG: ${PKG}"
+    rm -v *.rpm || true
+    fedpkg --release el7 srpm
+    mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg -n *.rpm

@@ -12,4 +12,12 @@ Utilities to assist in sclo-python maintenance
 
 - [SCL definition overview](https://www.softwarecollections.org/en/docs/guide/#Creating_Your_Own_Software_Collections)
 - [SCLo-SIG guide](https://wiki.centos.org/SpecialInterestGroup/SCLo#head-b408f06ad89fd3a67686f755eafac7ce310ee081)
+- [RPM List Builder](https://github.com/sclorg/rpm-list-builder)
+- [rh-pythonXY recipe file](https://github.com/sclorg/rhscl-rebuild-recipes/blob/master/python.yml)
 
+
+## Current dependencies:
+
+- RPM List Builder (install with `pip`, not packaged for Fedora)
+- `scl-utils-build`, `mock`, `fedpkg`
+- Jupyter notebook with the Python 3 kernel

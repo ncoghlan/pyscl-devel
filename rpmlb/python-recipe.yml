@@ -1,0 +1,65 @@
+# Rebuild recipe for sclo-python rolling release SCL
+---
+sclo-python:
+    name: Python 3.5
+    packages:
+        - sclo-python
+
+        - python:
+            macros:
+              with_rewheel: 0
+              run_selftest_suite: 0
+        - python-setuptools:
+            macros:
+              build_wheel: 0
+        - python-pip:
+            macros:
+              build_wheel: 0
+        - python-wheel
+        - python-setuptools:
+            macros:
+              build_wheel: 1
+        - python-pip:
+            macros:
+              build_wheel: 1
+        - python:
+            macros:
+              with_rewheel: 1
+
+        - python-docutils
+        - python-markupsafe
+        - python-coverage
+
+        - python-jinja2:
+            macros:
+                with_docs: 0
+        - python-nose:
+            macros:
+                with_docs: 0
+        - babel:
+            macros:
+                with_docs: 0
+        - python-pygments
+        - python-sphinx
+        - babel:
+            macros:
+                with_docs: 1
+        - python-nose:
+            macros:
+                with_docs: 1
+        - python-jinja2:
+            macros:
+                with_docs: 1
+
+        - python-six
+        - PyYAML
+        - mod_wsgi
+        - python-psycopg2
+        - python-PyMySQL
+
+        - python-pymongo
+        - numpy
+        - scipy
+        - python-simplejson
+        - python-sqlalchemy
+        - python-virtualenv
