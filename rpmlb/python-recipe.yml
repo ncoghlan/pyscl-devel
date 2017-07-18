@@ -6,49 +6,52 @@ sclo-python:
         - sclo-python
 
         - python:
-            macros:
+            replaced_macros:
               with_rewheel: 0
+              with_debug_build: 0
               run_selftest_suite: 0
         - python-setuptools:
-            macros:
+            replaced_macros:
               build_wheel: 0
         - python-pip:
             macros:
-              build_wheel: 0
+              replaced_build_wheel: 0
         - python-wheel
         - python-setuptools:
-            macros:
+            replaced_macros:
               build_wheel: 1
         - python-pip:
-            macros:
+            replaced_macros:
               build_wheel: 1
         - python:
-            macros:
+            replaced_macros:
               with_rewheel: 1
+              with_debug_build: 1
+              run_selftest_suite: 1
 
         - python-docutils
         - python-markupsafe
         - python-coverage
 
         - python-jinja2:
-            macros:
+            replaced_macros:
                 with_docs: 0
         - python-nose:
-            macros:
+            replaced_macros:
                 with_docs: 0
         - babel:
-            macros:
+            replaced_macros:
                 with_docs: 0
         - python-pygments
         - python-sphinx
         - babel:
-            macros:
+            replaced_macros:
                 with_docs: 1
         - python-nose:
-            macros:
+            replaced_macros:
                 with_docs: 1
         - python-jinja2:
-            macros:
+            replaced_macros:
                 with_docs: 1
 
         - python-six
