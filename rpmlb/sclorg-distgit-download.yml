@@ -44,5 +44,5 @@ build:
   - |
     echo "Building PKG: ${PKG}"
     rm -v *.rpm || true
-    fedpkg --release el7 srpm
-    mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg -n *.rpm
+    fedpkg --release el7 --module-name ${PKG} srpm
+    mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg -n --rpmbuild-opts '--define "scl sclo-python"' *.rpm
