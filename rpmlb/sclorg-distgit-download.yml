@@ -12,19 +12,23 @@ download:
   - |
     echo "Downloading PKG: ${PKG}"
     export REPO_NAME=${PKG}
-    if [ "${PKG}" == "sclo-python" || "${PKG}" == "python" ]; then
+    if [ "${PKG}" = "sclo-python" ] || [ "${PKG}" = "python" ]; then
+        echo Using package definition from personal repo
         export BASE_REPO_URL="https://github.com/ncoghlan"
         export REPO_BRANCH="sig-sclo7-sclo-python"
-        if [ "${PKG}" == "python" ]; then
+        if [ "${PKG}" = "python" ]; then
             export REPO_NAME="python-spec"
         fi
     else
+        echo Using package definition from sclorg-distgit
         export BASE_REPO_URL="https://github.com/sclorg-distgit"
         export REPO_BRANCH="sig-sclo7-rh-python35-rh"
     fi
     if [ "${REPO_NAME}" != "" ]; then
         if [ ! -d ${REPO_NAME} ]; then
-            git clone "${BASE_REPO_URL}/${PKG}.git"
+            export REPO_URL="${BASE_REPO_URL}/${PKG}.git"
+            echo Cloning ${REPO_URL}
+            git clone ${REPO_URL}
         fi
         if [ "${REPO_NAME}" != "${PKG}" ]; then
             ln -sf ${REPO_NAME} ${PKG}
