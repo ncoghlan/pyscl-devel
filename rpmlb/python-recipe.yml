@@ -3,7 +3,10 @@
 sclo-python:
     name: Python 3.5
     packages:
-        - sclo-python
+        # Create a metapackage that configures the SCL without any packages
+        - rh-python35:
+            replaced_macros:
+              install_scl: 0
 
         - python:
             replaced_macros:
@@ -14,8 +17,8 @@ sclo-python:
             replaced_macros:
               build_wheel: 0
         - python-pip:
-            macros:
-              replaced_build_wheel: 0
+            replaced_macros:
+              build_wheel: 0
         - python-wheel
         - python-setuptools:
             replaced_macros:
@@ -66,3 +69,8 @@ sclo-python:
         - python-simplejson
         - python-sqlalchemy
         - python-virtualenv
+
+        # Create the final metapackage with the default preinstalled package set
+        - rh-python35:
+            replaced_macros:
+              install_scl: 1
