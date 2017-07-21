@@ -11,11 +11,13 @@ before_download:
 download:
   - |
     echo "Downloading PKG: ${PKG}"
-    export REPO_NAME=${PKG}
-    if [ "${PKG}" = "sclo-python" ] || [ "${PKG}" = "python" ]; then
+    if [ "${PKG}" = "rh-python35" ] || [ "${PKG}" = "python" ]; then
         echo Using package definition from personal repo
         export BASE_REPO_URL="https://github.com/ncoghlan"
         export REPO_BRANCH="sig-sclo7-sclo-python"
+        if [ "${PKG}" = "rh-python35" ]; then
+            export REPO_NAME="sclo-python"
+        fi
         if [ "${PKG}" = "python" ]; then
             export REPO_NAME="python-spec"
         fi
@@ -23,10 +25,11 @@ download:
         echo Using package definition from sclorg-distgit
         export BASE_REPO_URL="https://github.com/sclorg-distgit"
         export REPO_BRANCH="sig-sclo7-rh-python35-rh"
+        export REPO_NAME=${PKG}
     fi
     if [ "${REPO_NAME}" != "" ]; then
         if [ ! -d ${REPO_NAME} ]; then
-            export REPO_URL="${BASE_REPO_URL}/${PKG}.git"
+            export REPO_URL="${BASE_REPO_URL}/${REPO_NAME}.git"
             echo Cloning ${REPO_URL}
             git clone ${REPO_URL}
         fi
@@ -43,10 +46,14 @@ before_build:
   - echo "Building for x86-64 EL7 with mock & scl-utils"
   - pwd
   # Skip cleaning the chroot for now to speed up local iterations
-  - echo "Skipping `mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --scrub=all`"
+  - echo "Skipping 'mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --scrub=all'"
 build:
   - |
+    if [ "${PKG}" = "sclo-python" ]; then
+        # Currently still building the rh-python35 SCL, not sclo-python
+        export PKG=rh-python35
+    fi
     echo "Building PKG: ${PKG}"
     rm -v *.rpm || true
     fedpkg --release el7 --module-name ${PKG} srpm
-    mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg -n --rpmbuild-opts '--define "scl sclo-python"' *.rpm
+    mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg -n --postinstall --rpmbuild-opts '--define "scl rh-python35"' *.rpm
