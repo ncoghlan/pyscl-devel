@@ -47,13 +47,40 @@ before_build:
   - pwd
   # Skip cleaning the chroot for now to speed up local iterations
   - echo "Skipping 'mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --scrub=all'"
+  - mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --install yum
 build:
   - |
+    set -e
     if [ "${PKG}" = "sclo-python" ]; then
         # Currently still building the rh-python35 SCL, not sclo-python
         export PKG=rh-python35
     fi
     echo "Building PKG: ${PKG}"
     rm -v *.rpm || true
+
     fedpkg --release el7 --module-name ${PKG} srpm
-    mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg -n --postinstall --rpmbuild-opts '--define "scl rh-python35"' *.rpm
+    mkdir -p built_rpms
+    rm -v built_rpms/*.rpm || true
+    mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --resultdir built_rpms --no-clean --no-cleanup-after --rpmbuild-opts '--define "scl rh-python35"' *.rpm
+    pushd built_rpms
+    rm -v *.src.rpm || true
+    export LAST_INSTALLED_RPM=
+    for BUILT_RPM in `ls *.rpm`
+    do
+        export BUILT_RPM_PATH="`pwd`/${BUILT_RPM}"
+        mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --shell "mkdir -p `pwd`"
+        mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --copyin ${BUILT_RPM_PATH} ${BUILT_RPM_PATH}
+        if ! mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --shell "rpm -qp ${BUILT_RPM_PATH}"; then
+            echo "Installing RPM: ${BUILT_RPM_PATH}"
+            mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --install ${BUILT_RPM_PATH}
+        else
+            echo "Reinstalling RPM: ${BUILT_RPM_PATH}"
+            mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --shell "yum reinstall ${BUILT_RPM_PATH}"
+        fi
+        export LAST_INSTALLED_RPM=${BUILT_RPM}
+    done
+    popd
+    if [ "${LAST_INSTALLED_RPM}" = "" ]; then
+        echo "No RPMs installed for ${PKG}, aborting"
+        false
+    fi
