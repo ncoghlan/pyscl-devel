@@ -83,6 +83,6 @@ build:
 
     # Build the RPMs and install them all into the mock chroot
     echo "Building RPM: ${PKG}"
-    export RPM_BUILD_OPTS="--define 'scl rh-python35' --define \'${RPM_DIST_MACRO}\'"
+    export RPM_BUILD_OPTS="--define 'scl rh-python35' --define '${RPM_DIST_MACRO}'"
     mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --no-cleanup-after \
          --rpmbuild-opts "${RPM_BUILD_OPTS}" --postinstall *.rpm
