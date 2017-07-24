@@ -46,41 +46,43 @@ before_build:
   - echo "Building for x86-64 EL7 with mock & scl-utils"
   - pwd
   # Skip cleaning the chroot for now to speed up local iterations
+  #- mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --scrub=all
   - echo "Skipping 'mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --scrub=all'"
   - mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --install yum
 build:
   - |
-    set -e
+    set -ex
     if [ "${PKG}" = "sclo-python" ]; then
         # Currently still building the rh-python35 SCL, not sclo-python
         export PKG=rh-python35
     fi
-    echo "Building PKG: ${PKG}"
+
+    # Download sources and create the spec file
+    pwd
     rm -v *.rpm || true
 
-    fedpkg --release el7 --module-name ${PKG} srpm
-    mkdir -p built_rpms
-    rm -v built_rpms/*.rpm || true
-    mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --resultdir built_rpms --no-clean --no-cleanup-after --rpmbuild-opts '--define "scl rh-python35"' *.rpm
-    pushd built_rpms
-    rm -v *.src.rpm || true
-    export LAST_INSTALLED_RPM=
-    for BUILT_RPM in `ls *.rpm`
-    do
-        export BUILT_RPM_PATH="`pwd`/${BUILT_RPM}"
-        mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --shell "mkdir -p `pwd`"
-        mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --copyin ${BUILT_RPM_PATH} ${BUILT_RPM_PATH}
-        if ! mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --shell "rpm -qp ${BUILT_RPM_PATH}"; then
-            echo "Installing RPM: ${BUILT_RPM_PATH}"
-            mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --install ${BUILT_RPM_PATH}
-        else
-            echo "Reinstalling RPM: ${BUILT_RPM_PATH}"
-            mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --shell "yum reinstall ${BUILT_RPM_PATH}"
-        fi
-        export LAST_INSTALLED_RPM=${BUILT_RPM}
-    done
-    popd
-    if [ "${LAST_INSTALLED_RPM}" = "" ]; then
-        echo "No RPMs installed for ${PKG}, aborting"
-        false
+    # Adjust the release field for builds that break circular dependencies
+    if [ -e ${PKG}.spec.orig ]; then
+        echo "Bootstrapping preliminary SRPM for PKG: ${PKG}"
+        export RPM_DIST_MACRO="dist .0.bootstrap.el7"
+        fedpkg --release el7 --module-name ${PKG} sources
+        rpmbuild --define "rhel 7" \
+                 --define "el7 1" \
+                 --define "${RPM_DIST_MACRO}" \
+                 --define "_sourcedir `pwd`" \
+                 --define "_specdir `pwd`" \
+                 --define "_builddir `pwd`" \
+                 --define "_srcrpmdir `pwd`" \
+                 --define "_rpmdir `pwd`" \
+                 --nodeps -bs ${PKG}.spec
+    else
+        echo "Building SRPM: ${PKG}"
+        export RPM_DIST_MACRO="dist el7"
+        fedpkg --release el7 --module-name ${PKG} srpm
     fi
+
+    # Build the RPMs and install them all into the mock chroot
+    echo "Building RPM: ${PKG}"
+    export RPM_BUILD_OPTS="--define 'scl rh-python35' --define \'${RPM_DIST_MACRO}\'"
+    mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --no-cleanup-after \
+         --rpmbuild-opts "${RPM_BUILD_OPTS}" --postinstall *.rpm

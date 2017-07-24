@@ -3,11 +3,16 @@
 sclo-python:
     name: Python 3.5
     packages:
-        # Create a metapackage that configures the SCL without any packages
+        ################################################################
+        # Bootstrapping metapackage that omits the default package set
+        ################################################################
         - rh-python35:
             replaced_macros:
               install_scl: 0
 
+        ##########################################################
+        # Build CPython and the default Python packaging toolset
+        ##########################################################
         - python:
             replaced_macros:
               with_rewheel: 0
@@ -20,22 +25,18 @@ sclo-python:
             replaced_macros:
               build_wheel: 0
         - python-wheel
-        - python-setuptools:
-            replaced_macros:
-              build_wheel: 1
-        - python-pip:
-            replaced_macros:
-              build_wheel: 1
-        - python:
-            replaced_macros:
-              with_rewheel: 1
-              with_debug_build: 1
-              run_selftest_suite: 1
+        - python-setuptools
+        - python-pip
+        - python
 
+        ###############################################################
+        # Build the Sphinx documentation toolkit and its dependencies
+        ###############################################################
         - python-docutils
         - python-markupsafe
         - python-coverage
 
+        # These projects use Sphinx for their docs, but Sphinx depends on *them*
         - python-jinja2:
             replaced_macros:
                 with_docs: 0
@@ -45,18 +46,19 @@ sclo-python:
         - babel:
             replaced_macros:
                 with_docs: 0
+
+        # Finish building Sphinx
         - python-pygments
         - python-sphinx
-        - babel:
-            replaced_macros:
-                with_docs: 1
-        - python-nose:
-            replaced_macros:
-                with_docs: 1
-        - python-jinja2:
-            replaced_macros:
-                with_docs: 1
 
+        # Rebuild dependencies with full docs
+        - babel
+        - python-nose
+        - python-jinja2
+
+        ###############################################################
+        # Additional projects (no circular dependencies to resolve)
+        ###############################################################
         - python-six
         - PyYAML
         - mod_wsgi
@@ -70,7 +72,7 @@ sclo-python:
         - python-sqlalchemy
         - python-virtualenv
 
-        # Create the final metapackage with the default preinstalled package set
-        - rh-python35:
-            replaced_macros:
-              install_scl: 1
+        ###############################################################
+        # Final metapackage with the default preinstalled package set
+        ###############################################################
+        - rh-python35
