@@ -77,7 +77,7 @@ build:
                  --nodeps -bs ${PKG}.spec
     else
         echo "Building SRPM: ${PKG}"
-        export RPM_DIST_MACRO="dist el7"
+        export RPM_DIST_MACRO="dist .el7"
         fedpkg --release el7 --module-name ${PKG} srpm
     fi
 
