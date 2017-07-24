@@ -64,7 +64,7 @@ build:
     # Adjust the release field for builds that break circular dependencies
     if [ -e ${PKG}.spec.orig ]; then
         echo "Bootstrapping preliminary SRPM for PKG: ${PKG}"
-        export RPM_DIST_MACRO="dist .0.bootstrap.el7"
+        export RPM_DIST_MACRO="dist .bootstrap.el7"
         fedpkg --release el7 --module-name ${PKG} sources
         rpmbuild --define "rhel 7" \
                  --define "el7 1" \
