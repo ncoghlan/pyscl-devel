@@ -45,10 +45,7 @@ download:
 before_build:
   - echo "Building for x86-64 EL7 with mock & scl-utils"
   - pwd
-  # Skip cleaning the chroot for now to speed up local iterations
-  #- mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --scrub=all
-  - echo "Skipping 'mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --scrub=all'"
-  - mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --install yum
+  - mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --scrub=all
 build:
   - |
     set -ex
