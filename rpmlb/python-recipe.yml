@@ -43,9 +43,6 @@ sclo-python:
         - python-nose:
             replaced_macros:
                 with_docs: 0
-        - babel:
-            replaced_macros:
-                with_docs: 0
 
         # Finish building Sphinx
         - python-pygments
