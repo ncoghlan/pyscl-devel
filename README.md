@@ -5,7 +5,7 @@ Utilities to assist in sclo-python maintenance
 
     # Pending an rpm-list-builder release with CUSTOM_DIR support
     pipsi install https://github.com/ncoghlan/rpm-list-builder.git@issue-67-add-CUSTOM_DIR#egg=rpmlb
-    git clone https://ncoghlan/pyscl-devel
+    git clone https://github.com/ncoghlan/pyscl-devel
     cd pyscl-devel/rpmlb
     rpmlb --custom-file sclorg-distgit-download.yml --download custom \
           --build custom --work-directory .working python-recipe.yml sclo-python
