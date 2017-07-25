@@ -46,6 +46,8 @@ before_build:
   - echo "Building for x86-64 EL7 with mock & scl-utils"
   - pwd
   - mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --scrub=all
+  # The SCL config files don't get created properly if yum is missing
+  - mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --install yum
 build:
   - |
     set -ex
