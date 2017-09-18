@@ -11,13 +11,11 @@ before_download:
 download:
   - |
     echo "Downloading PKG: ${PKG}"
-    if [ "${PKG}" = "rh-python35" ] || [ "${PKG}" = "python" ]; then
+    export REPO_NAME=${PKG}
+    if [ "${PKG}" = "sclo-python" ] || [ "${PKG}" = "python" ]; then
         echo Using package definition from personal repo
         export BASE_REPO_URL="https://github.com/ncoghlan"
         export REPO_BRANCH="sig-sclo7-sclo-python"
-        if [ "${PKG}" = "rh-python35" ]; then
-            export REPO_NAME="sclo-python"
-        fi
         if [ "${PKG}" = "python" ]; then
             export REPO_NAME="python-spec"
         fi
@@ -25,7 +23,6 @@ download:
         echo Using package definition from sclorg-distgit
         export BASE_REPO_URL="https://github.com/sclorg-distgit"
         export REPO_BRANCH="sig-sclo7-rh-python35-rh"
-        export REPO_NAME=${PKG}
     fi
     if [ "${REPO_NAME}" != "" ]; then
         if [ ! -d ${REPO_NAME} ]; then
@@ -51,10 +48,6 @@ before_build:
 build:
   - |
     set -ex
-    if [ "${PKG}" = "sclo-python" ]; then
-        # Currently still building the rh-python35 SCL, not sclo-python
-        export PKG=rh-python35
-    fi
 
     # Download sources and create the spec file
     pwd
@@ -73,6 +66,8 @@ build:
                  --define "_builddir `pwd`" \
                  --define "_srcrpmdir `pwd`" \
                  --define "_rpmdir `pwd`" \
+                 --define 'scl sclo-python' \
+                 --define 'vendorscl sclo' \
                  --nodeps -bs ${PKG}.spec
     else
         echo "Building SRPM: ${PKG}"
@@ -82,6 +77,6 @@ build:
 
     # Build the RPMs and install them all into the mock chroot
     echo "Building RPM: ${PKG}"
-    export RPM_BUILD_OPTS="--define 'scl rh-python35' --define '${RPM_DIST_MACRO}'"
+    export RPM_BUILD_OPTS="--define 'scl sclo-python' --define 'vendorscl sclo' --define '${RPM_DIST_MACRO}'"
     mock -r ${CUSTOM_DIR}/sig-sclo7-x86_64.cfg --no-clean --no-cleanup-after \
          --rpmbuild-opts "${RPM_BUILD_OPTS}" --postinstall *.rpm

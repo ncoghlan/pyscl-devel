@@ -1,12 +1,12 @@
 # Rebuild recipe for sclo-python rolling release SCL
 ---
 sclo-python:
-    name: Python 3.5
+    name: Python Upstream Tracking SCL
     packages:
         ################################################################
         # Bootstrapping metapackage that omits the default package set
         ################################################################
-        - rh-python35:
+        - sclo-python:
             replaced_macros:
               install_scl: 0
 
@@ -72,4 +72,4 @@ sclo-python:
         ###############################################################
         # Final metapackage with the default preinstalled package set
         ###############################################################
-        - rh-python35
+        - sclo-python
